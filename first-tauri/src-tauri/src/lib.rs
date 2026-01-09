@@ -1,30 +1,12 @@
-use serde::{Deserialize, Serialize};
+mod types;
+
 use std::fs;
 use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-struct RepositoryInfo {
-    id: u32,
-    name: String,
-    path: String,
-    branch: String,
-    #[serde(rename = "gameVersion")]
-    game_version: String,
-    #[serde(rename = "gameVersions")]
-    game_versions: Vec<String>,
-    server: String,
-    #[serde(rename = "serverOptions")]
-    server_options: Vec<String>,
-    #[serde(rename = "hasWarning")]
-    has_warning: bool,
-}
+use types::RepositoryInfo;
 
 fn get_data_path(app: &AppHandle) -> PathBuf {
-    app.path()
-        .app_data_dir()
-        .unwrap()
-        .join("userdata.json")
+    app.path().app_data_dir().unwrap().join("userdata.json")
 }
 
 #[tauri::command]
