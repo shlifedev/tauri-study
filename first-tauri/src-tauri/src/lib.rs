@@ -1,4 +1,5 @@
 mod types;
+pub mod git;
 
 use std::fs;
 use std::path::PathBuf;
