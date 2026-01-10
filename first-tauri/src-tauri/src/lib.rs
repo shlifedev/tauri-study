@@ -3,8 +3,11 @@ pub mod git;
 
 use std::fs;
 use std::path::PathBuf;
-use tauri::{AppHandle, Manager};
+use specta_typescript::Typescript;
+use tauri::{AppHandle, Builder, Manager};
 use types::RepositoryInfo;
+use tauri_specta::{collect_commands, collect_events};
+use crate::types::MyEvent;
 
 fn get_data_path(app: &AppHandle) -> PathBuf {
     app.path().app_data_dir().unwrap().join("userdata.json")
@@ -42,6 +45,12 @@ fn load_repositories(app: AppHandle) -> Result<Vec<RepositoryInfo>, String> {
     }
 }
 
+#[tauri::command]
+#[specta::specta] // < You must annotate your commands
+fn hello_world(my_name: String) -> String {
+    format!("Hello, {my_name}! You've been greeted from Rust!")
+}
+
 // 기존 greet 함수 유지
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -55,6 +64,19 @@ fn my_custom_command() {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+
+
+
+    let mut builder = tauri_specta::Builder::<tauri::Wry>::new()
+        // Then register them (separated by a comma)
+        .commands(collect_commands![hello_world]).
+        events(collect_events![MyEvent]);
+
+
+    builder
+        .export(Typescript::default(), "../src/lib/bindings.ts")
+        .expect("Failed to export typescript bindings");
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![

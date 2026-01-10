@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+use specta::Type;
+use tauri_specta::Event;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct RepositoryInfo {
     pub id: u32,
     pub name: String,
@@ -16,3 +18,7 @@ pub struct RepositoryInfo {
     #[serde(rename = "hasWarning")]
     pub has_warning: bool,
 }
+
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
+pub struct MyEvent(String);
