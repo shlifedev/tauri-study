@@ -14,6 +14,7 @@ fn get_data_path(app: &AppHandle) -> PathBuf {
 }
 
 #[tauri::command]
+#[specta::specta]
 fn save_repositories(repos: Vec<RepositoryInfo>, app: AppHandle) -> Result<(), String> {
     let data_dir = app.path().app_data_dir().unwrap();
 
@@ -31,6 +32,7 @@ fn save_repositories(repos: Vec<RepositoryInfo>, app: AppHandle) -> Result<(), S
 }
 
 #[tauri::command]
+#[specta::specta]
 fn load_repositories(app: AppHandle) -> Result<Vec<RepositoryInfo>, String> {
     let path = get_data_path(&app);
 
@@ -47,12 +49,13 @@ fn load_repositories(app: AppHandle) -> Result<Vec<RepositoryInfo>, String> {
 
 #[tauri::command]
 #[specta::specta] // < You must annotate your commands
-fn hello_world(my_name: String) -> String {
-    format!("Hello, {my_name}! You've been greeted from Rust!")
+fn hello_world(my_name: String)   {
+    println!("Hello {}!", my_name);
 }
 
 // 기존 greet 함수 유지
 #[tauri::command]
+#[specta::specta]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
@@ -69,7 +72,7 @@ pub fn run() {
 
     let mut builder = tauri_specta::Builder::<tauri::Wry>::new()
         // Then register them (separated by a comma)
-        .commands(collect_commands![hello_world]).
+        .commands(collect_commands![hello_world, ]).
         events(collect_events![MyEvent]);
 
 
@@ -77,14 +80,10 @@ pub fn run() {
         .export(Typescript::default(), "../src/lib/bindings.ts")
         .expect("Failed to export typescript bindings");
 
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![
-            greet,
-            my_custom_command,
-            save_repositories,
-            load_repositories
-        ])
+        .invoke_handler(builder.invoke_handler())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

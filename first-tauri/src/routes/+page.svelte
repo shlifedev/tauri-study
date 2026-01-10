@@ -1,9 +1,9 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   import { onMount } from "svelte";
-
+  import { events, commands } from "$lib/bindings"
   interface RepositoryInfo {
-    id: number;
+      id: number;
     name: string;
     path: string;
     branch: string;
@@ -73,6 +73,7 @@
     },
   ]);
 
+
   let searchQuery = $state("");
   let showModal = $state(false);
   let newRepoName = $state("");
@@ -129,6 +130,7 @@
   });
 </script>
 
+
 <!-- 헤더 -->
 <header class="header">
   <div class="header-main">
@@ -144,6 +146,10 @@
       </button>
     </div>
   </div>
+
+  <button onclick={() => commands.helloWorld("World!")} >
+    Do Something
+  </button>
 
   <!-- 테이블 헤더 -->
   <div class="table-header">
